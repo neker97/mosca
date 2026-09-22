@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/fly.tscn" id="1"]
 [ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/arena.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="4"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_1"]
 size = Vector2(20, 20)
@@ -48,3 +49,36 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5, 1, 0)
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("2")
 control_mode = 0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("4")
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 32
+
+[node name="PanelA" type="PanelContainer" parent="HUD/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="LabelA" type="Label" parent="HUD/MarginContainer/HBoxContainer/PanelA"]
+layout_mode = 2
+text = "MOSCA A"
+theme_override_font_sizes/font_size = 16
+
+[node name="PanelB" type="PanelContainer" parent="HUD/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="LabelB" type="Label" parent="HUD/MarginContainer/HBoxContainer/PanelB"]
+layout_mode = 2
+text = "MOSCA B"
+theme_override_font_sizes/font_size = 16

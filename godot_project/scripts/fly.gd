@@ -26,6 +26,27 @@ var _throw_action := false
 const FIREBALL_SCENE := preload("res://scenes/fireball.tscn")
 
 @onready var fireball_spawn: Node3D = $FireballSpawn
+@onready var mesh: MeshInstance3D = $MeshInstance3D
+
+var _base_color: Color
+var _flash_tween: Tween
+
+
+func _ready() -> void:
+	# materiale duplicato per istanza: senza questo, il flash di una mosca
+	# colorerebbe anche l'altra (sub-resource condiviso tra le due istanze di fly.tscn)
+	var mat: StandardMaterial3D = mesh.get_surface_override_material(0).duplicate()
+	mesh.set_surface_override_material(0, mat)
+	_base_color = mat.albedo_color
+
+
+func _flash_hit() -> void:
+	var mat: StandardMaterial3D = mesh.get_surface_override_material(0)
+	if _flash_tween:
+		_flash_tween.kill()
+	mat.albedo_color = Color.WHITE
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(mat, "albedo_color", _base_color, 0.25)
 
 
 func _physics_process(delta: float) -> void:
@@ -128,6 +149,7 @@ func _throw() -> void:
 func take_damage(amount: float) -> void:
 	hp = max(0.0, hp - amount)
 	last_hit_reward -= amount
+	_flash_hit()
 
 
 func register_hit_dealt(amount: float) -> void:

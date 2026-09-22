@@ -6,6 +6,12 @@ const APPROACH_SHAPING_COEF := 0.05  # premio denso per avvicinarsi: fa emergere
 
 var _prev_dist: float = -1.0
 
+# ultimi valori osservati/agiti, letti dall'HUD di debug (hud.gd) per mostrare
+# cosa "vede" la rete e come reagisce, invece di fidarsi che sia RL sulla fiducia
+var last_obs: Array = []
+var last_move_action: Vector2 = Vector2.ZERO
+var last_throw_action: bool = false
+
 
 func reset():
 	super.reset()
@@ -21,16 +27,15 @@ func get_obs() -> Dictionary:
 		rel = (opp.global_position - fly.global_position).normalized()
 		dist = fly.global_position.distance_to(opp.global_position)
 		opp_hp = opp.hp
-	return {
-		"obs": [
-			dist / fly.loom_detect_radius,
-			rel.x,
-			rel.z,
-			fly.cooldown_left / fly.throw_cooldown,
-			fly.hp,
-			opp_hp,
-		]
-	}
+	last_obs = [
+		dist / fly.loom_detect_radius,
+		rel.x,
+		rel.z,
+		fly.cooldown_left / fly.throw_cooldown,
+		fly.hp,
+		opp_hp,
+	]
+	return {"obs": last_obs}
 
 
 func get_reward() -> float:
@@ -57,5 +62,7 @@ func get_action_space() -> Dictionary:
 
 
 func set_action(action) -> void:
-	fly.set_move_action(Vector2(action["move"][0], action["move"][1]))
-	fly.set_throw_action(action["throw"] == 1)
+	last_move_action = Vector2(action["move"][0], action["move"][1])
+	last_throw_action = action["throw"] == 1
+	fly.set_move_action(last_move_action)
+	fly.set_throw_action(last_throw_action)

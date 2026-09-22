@@ -8,6 +8,8 @@ const SYNC_CONTROL_MODE_TRAINING := 1  # Sync.ControlModes.TRAINING (addons/godo
 
 var start_pos_a: Vector3
 var start_pos_b: Vector3
+var score_a: int = 0
+var score_b: int = 0
 
 
 func _ready() -> void:
@@ -45,9 +47,11 @@ func _end_round() -> void:
 	if fly_a.hp <= 0.0:
 		ctrl_a.reward -= 10.0
 		ctrl_b.reward += 10.0
+		score_b += 1
 	else:
 		ctrl_b.reward -= 10.0
 		ctrl_a.reward += 10.0
+		score_a += 1
 	ctrl_a.done = true
 	ctrl_b.done = true
 
