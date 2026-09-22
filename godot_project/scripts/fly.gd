@@ -28,13 +28,18 @@ const FIREBALL_SCENE := preload("res://scenes/fireball.tscn")
 
 @onready var fireball_spawn: Node3D = $FireballSpawn
 @onready var hit_flash: OmniLight3D = $HitFlash
+@onready var impact_burst: MeshInstance3D = $ImpactBurst
 
 var _flash_tween: Tween
+var _burst_tween: Tween
 
 
 func _ready() -> void:
 	if tint_color != Color.WHITE:
 		_apply_tint(get_node("Model"))
+	# duplicato per istanza: altrimenti il burst di una mosca modifica anche
+	# quello dell'altra (stesso sub_resource condiviso in fly.tscn)
+	impact_burst.material_override = impact_burst.material_override.duplicate()
 
 
 func _apply_tint(node: Node) -> void:
@@ -53,14 +58,26 @@ func _apply_tint(node: Node) -> void:
 
 
 func _flash_hit() -> void:
-	# luce bianca che lampeggia sul colpo: indipendente dal materiale del
-	# modello (il .glb importato ha materiali propri multi-surface, piu'
-	# fragile da modulare direttamente rispetto a una singola luce)
+	# luce sola era poco visibile (illuminava il pavimento, non si notava):
+	# aggiunto un burst a sprite (quad billboard, no_depth_test = si vede
+	# sempre sopra tutto) che si nota molto di piu' della sola luce
 	if _flash_tween:
 		_flash_tween.kill()
-	hit_flash.light_energy = 4.0
+	hit_flash.light_energy = 8.0
 	_flash_tween = create_tween()
 	_flash_tween.tween_property(hit_flash, "light_energy", 0.0, 0.25)
+
+	if _burst_tween:
+		_burst_tween.kill()
+	impact_burst.visible = true
+	impact_burst.scale = Vector3.ONE * 0.3
+	var mat: StandardMaterial3D = impact_burst.material_override
+	mat.albedo_color.a = 1.0
+	_burst_tween = create_tween()
+	_burst_tween.set_parallel(true)
+	_burst_tween.tween_property(impact_burst, "scale", Vector3.ONE * 1.6, 0.3)
+	_burst_tween.tween_property(mat, "albedo_color:a", 0.0, 0.3)
+	_burst_tween.chain().tween_callback(func(): impact_burst.visible = false)
 
 
 func _physics_process(delta: float) -> void:
