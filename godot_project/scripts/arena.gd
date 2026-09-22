@@ -44,7 +44,17 @@ func _physics_process(_delta: float) -> void:
 func _end_round() -> void:
 	var ctrl_a: AIController3D = fly_a.get_node("AIController")
 	var ctrl_b: AIController3D = fly_b.get_node("AIController")
-	if fly_a.hp <= 0.0:
+	var a_lost := fly_a.hp <= 0.0
+	var b_lost := fly_b.hp <= 0.0
+
+	if a_lost and b_lost:
+		# doppio KO nello stesso frame (es. entrambe scadono per timeout
+		# insieme, partendo sincronizzate): pareggio, nessun punto a nessuna.
+		# Prima non c'era questo caso: veniva sempre attribuita la vittoria
+		# a B perche' "fly_a.hp <= 0.0" e' il primo controllo nell'if/else,
+		# risultato: punteggio 0-12 sempre a favore della stessa mosca.
+		pass
+	elif a_lost:
 		ctrl_a.reward -= 10.0
 		ctrl_b.reward += 10.0
 		score_b += 1

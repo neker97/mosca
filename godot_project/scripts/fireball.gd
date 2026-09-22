@@ -10,6 +10,11 @@ var shooter: Fly
 func _ready() -> void:
 	add_to_group("fireball")
 	gravity_scale = 0.0
+	# senza queste due righe body_entered non scatta MAI su un RigidBody3D:
+	# nessun proiettile ha mai colpito nulla finora (bug scoperto a occhio,
+	# punteggio 0-12 sempre a favore della stessa mosca)
+	contact_monitor = true
+	max_contacts_reported = 4
 	body_entered.connect(_on_body_entered)
 	get_tree().create_timer(lifetime).timeout.connect(queue_free)
 
