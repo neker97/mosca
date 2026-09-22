@@ -1,8 +1,11 @@
 """Training self-play PPO per fly-fight-sim (vedi docs/specs/fly-fight-sim.spec.md).
 
 Uso:
-  1. Apri godot_project/ in Godot, premi Play (scena arena.tscn parte in HUMAN/TRAINING mode)
-  2. In un altro terminale: venv/Scripts/python.exe train.py
+  1. Avvia questo script per primo: venv/Scripts/python.exe train.py
+  2. In un altro terminale, avvia Godot con il flag --train (altrimenti Sync
+     resta in modalita' HUMAN e le mosche giocano in autonomia, demo alpha):
+       godot --path godot_project --headless --port=11008 --train
+     (oppure apri l'editor e passa --train tra gli argomenti di esecuzione)
   3. Al termine, modello salvato in models/fly_ppo.zip
 
 Self-check (no Godot richiesto): venv/Scripts/python.exe train.py --check

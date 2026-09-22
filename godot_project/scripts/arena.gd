@@ -1,17 +1,37 @@
 extends Node3D
 
+const SYNC_CONTROL_MODE_TRAINING := 1  # Sync.ControlModes.TRAINING (addons/godot_rl_agents/sync.gd)
+
 @onready var fly_a: Fly = $FlyA
 @onready var fly_b: Fly = $FlyB
+@onready var sync: Node = $Sync
 
 var start_pos_a: Vector3
 var start_pos_b: Vector3
 
 
 func _ready() -> void:
+	# Opt-in esplicito al training via CLI (--train). Di default Sync resta in
+	# modalita' HUMAN (impostata sul nodo in arena.tscn): NON tenta mai la
+	# connessione TCP al server RL, che su questa macchina si blocca a tempo
+	# indeterminato quando nessun server e' in ascolto (bug/quirk WinSock,
+	# osservato: 30s+ senza risolversi). Questo deve girare PRIMA che Sync
+	# riprenda dal suo "await get_parent().ready".
+	for arg in OS.get_cmdline_args():
+		if arg.begins_with("--train"):
+			sync.control_mode = SYNC_CONTROL_MODE_TRAINING
+			break
+
 	fly_a.opponent = fly_b
 	fly_b.opponent = fly_a
 	start_pos_a = fly_a.global_position
 	start_pos_b = fly_b.global_position
+
+	if sync.control_mode != SYNC_CONTROL_MODE_TRAINING:
+		# demo alpha: nessun training richiesto, le mosche giocano da sole
+		fly_a.autonomous = true
+		fly_b.autonomous = true
+		print("Modalita' autonoma (demo alpha) attiva: le mosche giocano da sole.")
 
 
 func _physics_process(_delta: float) -> void:
