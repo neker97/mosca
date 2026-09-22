@@ -9,8 +9,9 @@ class_name Fly
 @export var loom_dodge_speed_threshold: float = 4.0  # closing speed that triggers reflex dodge
 @export var preferred_distance: float = 4.0  # usata solo in modalita' autonoma
 @export var throw_range: float = 6.0  # usata solo in modalita' autonoma
-@export var no_hit_timeout: float = 15.0  # niente colpo a segno entro N secondi -> malus + fuori mappa
+@export var no_hit_timeout: float = 15.0  # niente colpo a segno entro N secondi -> malus + sconfitta
 @export var no_hit_malus: float = 2.0
+@export var arena_half_size: float = 9.0  # ground e' 20x20, margine di 1 dal bordo reale
 
 var hp: float = max_hp
 var opponent: Fly
@@ -53,6 +54,11 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 
 	move_and_slide()
+
+	# niente muri in arena: senza clamp la mosca puo' camminare fuori dalla
+	# piattaforma e cadere nel vuoto (osservato con la policy allenata)
+	global_position.x = clampf(global_position.x, -arena_half_size, arena_half_size)
+	global_position.z = clampf(global_position.z, -arena_half_size, arena_half_size)
 
 	if _throw_action and cooldown_left <= 0.0:
 		_throw()
