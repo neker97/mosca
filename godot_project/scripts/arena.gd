@@ -12,6 +12,8 @@ var score_a: int = 0
 var score_b: int = 0
 var freeze_on_ko: bool = false  # --freeze_on_ko: niente reset automatico, per vedere il KO
 var round_over: bool = false
+var last_winner: String = ""  # "MOSCA A" / "MOSCA B" / "PAREGGIO", letto dall'HUD per il banner
+var sim_paused: bool = false
 
 
 func _ready() -> void:
@@ -58,15 +60,17 @@ func _end_round() -> void:
 		# Prima non c'era questo caso: veniva sempre attribuita la vittoria
 		# a B perche' "fly_a.hp <= 0.0" e' il primo controllo nell'if/else,
 		# risultato: punteggio 0-12 sempre a favore della stessa mosca.
-		pass
+		last_winner = "PAREGGIO"
 	elif a_lost:
 		ctrl_a.reward -= 10.0
 		ctrl_b.reward += 10.0
 		score_b += 1
+		last_winner = "MOSCA B"
 	else:
 		ctrl_b.reward -= 10.0
 		ctrl_a.reward += 10.0
 		score_a += 1
+		last_winner = "MOSCA A"
 	ctrl_a.done = true
 	ctrl_b.done = true
 
@@ -74,7 +78,31 @@ func _end_round() -> void:
 		round_over = true
 		return
 
+	_reset_round()
+
+
+func _reset_round() -> void:
 	fly_a.global_position = start_pos_a
 	fly_b.global_position = start_pos_b
 	fly_a.reset_state()
 	fly_b.reset_state()
+
+
+func restart_round() -> void:
+	# richiamabile dal pulsante Restart in HUD, forza il reset anche se
+	# freeze_on_ko e' attivo o non era ancora finito il round
+	round_over = false
+	last_winner = ""
+	sim_paused = false
+	fly_a.set_physics_process(true)
+	fly_b.set_physics_process(true)
+	_reset_round()
+
+
+func set_paused(paused: bool) -> void:
+	# non usa get_tree().set_pause(): Sync gia' mette in pausa/riprende
+	# l'albero ad ogni step RL (protocollo di sincronizzazione col training),
+	# un pause globale nostro verrebbe sovrascritto quasi subito da quello
+	sim_paused = paused
+	fly_a.set_physics_process(not paused)
+	fly_b.set_physics_process(not paused)

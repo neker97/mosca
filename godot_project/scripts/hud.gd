@@ -5,6 +5,16 @@ extends CanvasLayer
 @onready var label_b: Label = $MarginContainer/HBoxContainer/PanelB/VBoxB/LabelB
 @onready var hp_bar_a: TextureProgressBar = $MarginContainer/HBoxContainer/PanelA/VBoxA/HPBarA
 @onready var hp_bar_b: TextureProgressBar = $MarginContainer/HBoxContainer/PanelB/VBoxB/HPBarB
+@onready var win_banner: Label = $WinBanner
+@onready var btn_stop: Button = $Controls/BtnStop
+@onready var btn_start: Button = $Controls/BtnStart
+@onready var btn_restart: Button = $Controls/BtnRestart
+
+
+func _ready() -> void:
+	btn_stop.pressed.connect(func(): arena.set_paused(true))
+	btn_start.pressed.connect(func(): arena.set_paused(false))
+	btn_restart.pressed.connect(func(): arena.restart_round())
 
 
 func _process(_delta: float) -> void:
@@ -12,6 +22,13 @@ func _process(_delta: float) -> void:
 	label_b.text = _fly_debug_text("B", arena.fly_b, arena.score_b)
 	hp_bar_a.value = arena.fly_a.hp * 100.0
 	hp_bar_b.value = arena.fly_b.hp * 100.0
+
+	win_banner.visible = arena.last_winner != ""
+	if win_banner.visible:
+		win_banner.text = "%s VINCE!" % arena.last_winner if arena.last_winner != "PAREGGIO" else "PAREGGIO!"
+
+	btn_stop.disabled = arena.sim_paused
+	btn_start.disabled = not arena.sim_paused
 
 
 func _fly_debug_text(tag: String, fly: Fly, score: int) -> String:
