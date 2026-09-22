@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/fly.tscn" id="1"]
 [ext_resource type="Script" path="res://addons/godot_rl_agents/sync.gd" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="FontFile" path="res://assets/ui/KenneyFuture.ttf" id="7"]
 [ext_resource type="Texture2D" path="res://assets/ui/hpbar_bg.png" id="8"]
 [ext_resource type="Texture2D" path="res://assets/ui/hpbar_fill.png" id="9"]
+[ext_resource type="AudioStream" path="res://assets/audio/aerial_duel.mp3" id="11"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_1"]
 size = Vector2(20, 20)
@@ -57,6 +58,11 @@ content_margin_bottom = 8.0
 
 [node name="Arena" type="Node3D"]
 script = ExtResource("3")
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11")
+volume_db = -10.0
+autoplay = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1")
