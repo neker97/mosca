@@ -81,7 +81,9 @@ func _reflex_dodge_direction() -> Vector3:
 		var dist := to_fly.length()
 		if dist > loom_detect_radius:
 			continue
-		var closing_speed: float = -fb.linear_velocity.dot(to_fly.normalized())
+		# to_fly punta dal proiettile verso la mosca: se la velocita' del
+		# proiettile e' allineata a to_fly, si sta avvicinando (dot positivo)
+		var closing_speed: float = fb.linear_velocity.dot(to_fly.normalized())
 		if closing_speed > loom_dodge_speed_threshold:
 			# schiva laterale, perpendicolare alla traiettoria del proiettile
 			var perp := Vector3(-fb.linear_velocity.z, 0.0, fb.linear_velocity.x).normalized()
