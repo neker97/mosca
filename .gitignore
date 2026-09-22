@@ -1,0 +1,6 @@
+venv/
+models/
+__pycache__/
+*.pyc
+godot_project/.godot/
+godot_project/export_presets.cfg
