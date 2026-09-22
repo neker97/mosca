@@ -26,27 +26,20 @@ var _throw_action := false
 const FIREBALL_SCENE := preload("res://scenes/fireball.tscn")
 
 @onready var fireball_spawn: Node3D = $FireballSpawn
-@onready var mesh: MeshInstance3D = $MeshInstance3D
+@onready var hit_flash: OmniLight3D = $HitFlash
 
-var _base_color: Color
 var _flash_tween: Tween
 
 
-func _ready() -> void:
-	# materiale duplicato per istanza: senza questo, il flash di una mosca
-	# colorerebbe anche l'altra (sub-resource condiviso tra le due istanze di fly.tscn)
-	var mat: StandardMaterial3D = mesh.get_surface_override_material(0).duplicate()
-	mesh.set_surface_override_material(0, mat)
-	_base_color = mat.albedo_color
-
-
 func _flash_hit() -> void:
-	var mat: StandardMaterial3D = mesh.get_surface_override_material(0)
+	# luce bianca che lampeggia sul colpo: indipendente dal materiale del
+	# modello (il .glb importato ha materiali propri multi-surface, piu'
+	# fragile da modulare direttamente rispetto a una singola luce)
 	if _flash_tween:
 		_flash_tween.kill()
-	mat.albedo_color = Color.WHITE
+	hit_flash.light_energy = 4.0
 	_flash_tween = create_tween()
-	_flash_tween.tween_property(mat, "albedo_color", _base_color, 0.25)
+	_flash_tween.tween_property(hit_flash, "light_energy", 0.0, 0.25)
 
 
 func _physics_process(delta: float) -> void:

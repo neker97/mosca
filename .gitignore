@@ -1,5 +1,5 @@
 venv/
-models/
+/models/
 __pycache__/
 *.pyc
 godot_project/.godot/
