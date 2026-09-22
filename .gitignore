@@ -1,5 +1,6 @@
 venv/
-/models/
+/models/*
+!/models/fly_ppo.zip
 __pycache__/
 *.pyc
 godot_project/.godot/
