@@ -10,6 +10,8 @@ var start_pos_a: Vector3
 var start_pos_b: Vector3
 var score_a: int = 0
 var score_b: int = 0
+var freeze_on_ko: bool = false  # --freeze_on_ko: niente reset automatico, per vedere il KO
+var round_over: bool = false
 
 
 func _ready() -> void:
@@ -22,7 +24,8 @@ func _ready() -> void:
 	for arg in OS.get_cmdline_args():
 		if arg.begins_with("--train"):
 			sync.control_mode = SYNC_CONTROL_MODE_TRAINING
-			break
+		elif arg.begins_with("--freeze_on_ko"):
+			freeze_on_ko = true
 
 	fly_a.opponent = fly_b
 	fly_b.opponent = fly_a
@@ -37,6 +40,8 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if round_over:
+		return
 	if fly_a.hp <= 0.0 or fly_b.hp <= 0.0:
 		_end_round()
 
@@ -64,6 +69,10 @@ func _end_round() -> void:
 		score_a += 1
 	ctrl_a.done = true
 	ctrl_b.done = true
+
+	if freeze_on_ko:
+		round_over = true
+		return
 
 	fly_a.global_position = start_pos_a
 	fly_b.global_position = start_pos_b
