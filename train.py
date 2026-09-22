@@ -9,10 +9,16 @@ Uso:
   3. Al termine, modello salvato in models/fly_ppo.zip
 
 Self-check (no Godot richiesto): venv/Scripts/python.exe train.py --check
+
+Checkpoint periodici in models/checkpoints/ (ogni --checkpoint_freq step,
+default 5000): se il processo viene interrotto (es. spegnimento macchina),
+si riprende dall'ultimo con --resume_from models/checkpoints/<file>.zip
 """
 import argparse
+from pathlib import Path
 
 from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.vec_env.vec_monitor import VecMonitor
 
 from godot_rl.wrappers.stable_baselines_wrapper import StableBaselinesGodotEnv
@@ -39,15 +45,23 @@ def check() -> None:
     print(f"OK: observation space={n_fields} campi, action space={EXPECTED_ACTIONS}")
 
 
-def train(timesteps: int, env_path: str | None) -> None:
+def train(timesteps: int, env_path: str | None, checkpoint_freq: int, resume_from: str | None) -> None:
     env = StableBaselinesGodotEnv(env_path=env_path, n_parallel=1)
     env = VecMonitor(env)
 
-    model = PPO("MultiInputPolicy", env, verbose=1)
-    model.learn(total_timesteps=timesteps)
+    if resume_from:
+        model = PPO.load(resume_from, env=env)
+        print(f"Ripreso da checkpoint: {resume_from}")
+    else:
+        model = PPO("MultiInputPolicy", env, verbose=1)
 
-    Path = __import__("pathlib").Path
-    Path("models").mkdir(exist_ok=True)
+    Path("models/checkpoints").mkdir(parents=True, exist_ok=True)
+    checkpoint_cb = CheckpointCallback(
+        save_freq=checkpoint_freq, save_path="models/checkpoints", name_prefix="fly_ppo"
+    )
+
+    model.learn(total_timesteps=timesteps, callback=checkpoint_cb, reset_num_timesteps=resume_from is None)
+
     model.save("models/fly_ppo")
     env.close()
 
@@ -57,9 +71,11 @@ if __name__ == "__main__":
     parser.add_argument("--check", action="store_true", help="sanity check statico, no Godot richiesto")
     parser.add_argument("--timesteps", type=int, default=200_000)
     parser.add_argument("--env_path", type=str, default=None, help="eseguibile esportato; None = editor interattivo")
+    parser.add_argument("--checkpoint_freq", type=int, default=5000, help="step tra un checkpoint e l'altro")
+    parser.add_argument("--resume_from", type=str, default=None, help="path a un checkpoint .zip da cui riprendere")
     args = parser.parse_args()
 
     if args.check:
         check()
     else:
-        train(args.timesteps, args.env_path)
+        train(args.timesteps, args.env_path, args.checkpoint_freq, args.resume_from)
