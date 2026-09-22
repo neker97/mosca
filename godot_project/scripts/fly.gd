@@ -169,6 +169,11 @@ func _throw() -> void:
 	# faceva viaggiare il proiettile in diagonale verso l'alto/basso
 	var target_flat := Vector3(opponent.global_position.x, fireball_spawn.global_position.y, opponent.global_position.z)
 	var dir := (target_flat - fireball_spawn.global_position).normalized()
+	# piccola dispersione casuale: senza questo due mosche che si fissano si
+	# annichiliscono all'infinito (stesso tiro, stessa traiettoria, si
+	# scontrano sempre a meta' strada). Con un po' di jitter la maggior
+	# parte dei tiri arriva comunque a segno, ma non collidono sistematicamente
+	dir = dir.rotated(Vector3.UP, deg_to_rad(randf_range(-8.0, 8.0)))
 	fb.launch(dir)
 
 
