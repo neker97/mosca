@@ -81,9 +81,11 @@ script = ExtResource("10")
 
 [node name="FlyA" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 0)
+tint_color = Color(1, 0.35, 0.35, 1)
 
 [node name="FlyB" parent="." instance=ExtResource("1")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 5, 1, 0)
+tint_color = Color(0.4, 0.5, 1, 1)
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("2")

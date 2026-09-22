@@ -1,9 +1,9 @@
 extends Camera3D
 
-@export var min_distance: float = 6.0
-@export var max_distance: float = 22.0
-@export var height_ratio: float = 0.65
-@export var padding: float = 5.0
+@export var min_distance: float = 4.0
+@export var max_distance: float = 15.0
+@export var height_ratio: float = 0.5
+@export var padding: float = 2.5
 
 @onready var arena: Node3D = get_parent()
 

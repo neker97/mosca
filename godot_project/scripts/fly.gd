@@ -12,6 +12,7 @@ class_name Fly
 @export var no_hit_timeout: float = 15.0  # niente colpo a segno entro N secondi -> malus + sconfitta
 @export var no_hit_malus: float = 2.0
 @export var arena_half_size: float = 9.0  # ground e' 20x20, margine di 1 dal bordo reale
+@export var tint_color: Color = Color.WHITE  # per distinguere le due mosche a colpo d'occhio
 
 var hp: float = max_hp
 var opponent: Fly
@@ -29,6 +30,26 @@ const FIREBALL_SCENE := preload("res://scenes/fireball.tscn")
 @onready var hit_flash: OmniLight3D = $HitFlash
 
 var _flash_tween: Tween
+
+
+func _ready() -> void:
+	if tint_color != Color.WHITE:
+		_apply_tint(get_node("Model"))
+
+
+func _apply_tint(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_inst: MeshInstance3D = node
+		var mesh: Mesh = mesh_inst.mesh
+		if mesh:
+			for i in mesh.get_surface_count():
+				var mat := mesh_inst.get_active_material(i)
+				if mat is StandardMaterial3D:
+					var dup: StandardMaterial3D = mat.duplicate()
+					dup.albedo_color = dup.albedo_color * tint_color
+					mesh_inst.set_surface_override_material(i, dup)
+	for child in node.get_children():
+		_apply_tint(child)
 
 
 func _flash_hit() -> void:
