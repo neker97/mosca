@@ -3,9 +3,11 @@ riusando la connessione TCP del training invece di ONNX_INFERENCE (che
 richiederebbe il build Mono/.NET di Godot, non installato).
 
 Uso:
-  1. venv/Scripts/python.exe predict.py
+  1. venv/Scripts/python.exe predict.py [--port 11009]
   2. In un altro terminale, Godot CON finestra (no --headless) e --train:
-       godot --path godot_project --port=11008 --train
+       godot --path godot_project --port=11009 --train
+  --port diverso da 11008 per poter girare in parallelo a un training
+  in corso (che occupa la 11008 di default).
 """
 import argparse
 
@@ -17,9 +19,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", type=str, default="models/fly_ppo.zip")
     parser.add_argument("--steps", type=int, default=100_000)
+    parser.add_argument("--port", type=int, default=11008)
     args = parser.parse_args()
 
-    env = StableBaselinesGodotEnv(env_path=None, n_parallel=1)
+    env = StableBaselinesGodotEnv(env_path=None, n_parallel=1, port=args.port)
     model = PPO.load(args.model)
 
     obs = env.reset()

@@ -74,6 +74,14 @@ func _physics_process(delta: float) -> void:
 	global_position.x = clampf(global_position.x, -arena_half_size, arena_half_size)
 	global_position.z = clampf(global_position.z, -arena_half_size, arena_half_size)
 
+	# la mosca guarda sempre l'avversario: e' anche la direzione in cui
+	# lancia (vedi _throw), senza questo il modello restava fermo con
+	# l'orientamento di importazione mentre i colpi partivano altrove
+	if opponent:
+		var look_target := Vector3(opponent.global_position.x, global_position.y, opponent.global_position.z)
+		if look_target.distance_to(global_position) > 0.01:
+			look_at(look_target, Vector3.UP)
+
 	if _throw_action and cooldown_left <= 0.0:
 		_throw()
 
@@ -135,7 +143,11 @@ func _throw() -> void:
 	get_tree().current_scene.add_child(fb)
 	fb.global_position = fireball_spawn.global_position
 	fb.shooter = self
-	var dir := (opponent.global_position - fireball_spawn.global_position).normalized()
+	# tiro sempre orizzontale: ignora la differenza di quota tra spawn point e
+	# avversario, altrimenti l'offset del punto di lancio (sopra il corpo)
+	# faceva viaggiare il proiettile in diagonale verso l'alto/basso
+	var target_flat := Vector3(opponent.global_position.x, fireball_spawn.global_position.y, opponent.global_position.z)
+	var dir := (target_flat - fireball_spawn.global_position).normalized()
 	fb.launch(dir)
 
 

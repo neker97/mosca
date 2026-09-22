@@ -15,7 +15,7 @@ script = ExtResource("1")
 shape = SubResource("CapsuleShape3D_1")
 
 [node name="Model" parent="." instance=ExtResource("3")]
-transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.2, 0)
+transform = Transform3D(-0.0075, 0, 0, 0, 0.0075, 0, 0, 0, -0.0075, 0, 0.15, 0)
 
 [node name="HitFlash" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
@@ -24,7 +24,7 @@ light_energy = 0.0
 omni_range = 2.0
 
 [node name="FireballSpawn" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, -0.4)
 
 [node name="AIController" type="Node3D" parent="."]
 script = ExtResource("2")
