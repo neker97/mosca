@@ -52,9 +52,13 @@ mosca/
 - lancia (bool/discrete)
 
 **Reward**:
-- +1 colpo a segno
-- -1 colpito
-- -0.01 lancio a vuoto (penalità spam)
+- +danno colpo a segno / -danno colpito (0.2 di default)
+- shaping denso: +0.05 * (distanza_precedente - distanza_attuale) ogni step
+  (avvicinarsi al nemico premia un po', da' segnale continuo alla value
+  function — introdotto dopo osservazione: senza shaping la policy
+  collassava su "non fare nulla", explained_variance restava ~0)
+- -2 malus se non si colpisce entro 15s, poi sconfitta immediata ("cade
+  dalla mappa") — v. `no_hit_timeout`/`no_hit_malus` in fly.gd
 - +10 / -10 fine round (vittoria/sconfitta)
 
 **Riflessi (non-RL, scriptati)**:

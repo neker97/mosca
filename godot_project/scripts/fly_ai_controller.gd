@@ -1,6 +1,15 @@
 extends AIController3D
 
+const APPROACH_SHAPING_COEF := 0.05  # premio denso per avvicinarsi: fa emergere segnale per la value function
+
 @onready var fly: Fly = get_parent()
+
+var _prev_dist: float = -1.0
+
+
+func reset():
+	super.reset()
+	_prev_dist = -1.0
 
 
 func get_obs() -> Dictionary:
@@ -27,6 +36,16 @@ func get_obs() -> Dictionary:
 func get_reward() -> float:
 	var r := fly.consume_reward()
 	reward += r
+
+	if fly.opponent:
+		var dist := fly.global_position.distance_to(fly.opponent.global_position)
+		if _prev_dist >= 0.0:
+			# reward shaping denso: avvicinarsi al nemico da' un piccolo bonus
+			# continuo, cosi' la value function ha un segnale su cui imparare
+			# invece del solo colpo/vittoria (troppo sparso, vedi docs/current-work.md)
+			reward += APPROACH_SHAPING_COEF * (_prev_dist - dist)
+		_prev_dist = dist
+
 	return reward
 
 

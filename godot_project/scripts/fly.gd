@@ -9,12 +9,15 @@ class_name Fly
 @export var loom_dodge_speed_threshold: float = 4.0  # closing speed that triggers reflex dodge
 @export var preferred_distance: float = 4.0  # usata solo in modalita' autonoma
 @export var throw_range: float = 6.0  # usata solo in modalita' autonoma
+@export var no_hit_timeout: float = 15.0  # niente colpo a segno entro N secondi -> malus + fuori mappa
+@export var no_hit_malus: float = 2.0
 
 var hp: float = max_hp
 var opponent: Fly
 var cooldown_left: float = 0.0
 var last_hit_reward: float = 0.0  # read/cleared by AIController each step
 var autonomous: bool = false  # true quando nessun server RL e' connesso (demo alpha)
+var time_since_hit: float = 0.0
 
 var _move_action := Vector2.ZERO
 var _throw_action := false
@@ -26,6 +29,11 @@ const FIREBALL_SCENE := preload("res://scenes/fireball.tscn")
 
 func _physics_process(delta: float) -> void:
 	cooldown_left = max(0.0, cooldown_left - delta)
+	time_since_hit += delta
+	if time_since_hit > no_hit_timeout and hp > 0.0:
+		# passivita' punita: malus + "cade dalla mappa" (sconfitta immediata)
+		last_hit_reward -= no_hit_malus
+		hp = 0.0
 
 	if autonomous:
 		_run_autonomous_heuristic()
@@ -118,6 +126,7 @@ func take_damage(amount: float) -> void:
 
 func register_hit_dealt(amount: float) -> void:
 	last_hit_reward += amount
+	time_since_hit = 0.0
 
 
 func consume_reward() -> float:
@@ -130,3 +139,4 @@ func reset_state() -> void:
 	hp = max_hp
 	cooldown_left = 0.0
 	last_hit_reward = 0.0
+	time_since_hit = 0.0

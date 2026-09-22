@@ -53,7 +53,9 @@ def train(timesteps: int, env_path: str | None, checkpoint_freq: int, resume_fro
         model = PPO.load(resume_from, env=env)
         print(f"Ripreso da checkpoint: {resume_from}")
     else:
-        model = PPO("MultiInputPolicy", env, verbose=1)
+        # ent_coef>0: bonus di esplorazione, default SB3 e' 0.0 e la policy
+        # collassava su "non fare nulla" (osservato: modello addestrato fermo)
+        model = PPO("MultiInputPolicy", env, verbose=1, ent_coef=0.01)
 
     Path("models/checkpoints").mkdir(parents=True, exist_ok=True)
     checkpoint_cb = CheckpointCallback(
