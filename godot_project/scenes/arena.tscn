@@ -123,6 +123,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_A")
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
 
+[node name="NameEditA" type="LineEdit" parent="HUD/MarginContainer/HBoxContainer/PanelA/VBoxA"]
+layout_mode = 2
+editable = false
+text = "MOSCA A"
+placeholder_text = "Nome mosca A"
+
 [node name="LabelA" type="Label" parent="HUD/MarginContainer/HBoxContainer/PanelA/VBoxA"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("7")
@@ -145,6 +151,12 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_B")
 [node name="VBoxB" type="VBoxContainer" parent="HUD/MarginContainer/HBoxContainer/PanelB"]
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
+
+[node name="NameEditB" type="LineEdit" parent="HUD/MarginContainer/HBoxContainer/PanelB/VBoxB"]
+layout_mode = 2
+editable = false
+text = "MOSCA B"
+placeholder_text = "Nome mosca B"
 
 [node name="LabelB" type="Label" parent="HUD/MarginContainer/HBoxContainer/PanelB/VBoxB"]
 layout_mode = 2
@@ -184,6 +196,18 @@ horizontal_alignment = 1
 vertical_alignment = 1
 text = "MOSCA A VINCE!"
 
+[node name="BtnMute" type="Button" parent="HUD"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 48.0
+grow_horizontal = 0
+text = "Muto"
+
 [node name="Controls" type="HBoxContainer" parent="HUD"]
 layout_mode = 1
 anchors_preset = 7
@@ -211,3 +235,50 @@ text = "Start"
 [node name="BtnRestart" type="Button" parent="HUD/Controls"]
 layout_mode = 2
 text = "Restart"
+
+[node name="StartMenu" type="CanvasLayer" parent="."]
+
+[node name="Dim" type="ColorRect" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.5)
+
+[node name="Panel" type="PanelContainer" parent="StartMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -100.0
+offset_right = 180.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="StartMenu/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="StartMenu/Panel/VBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("7")
+horizontal_alignment = 1
+text = "Scegli i nomi"
+
+[node name="NameEditA" type="LineEdit" parent="StartMenu/Panel/VBox"]
+layout_mode = 2
+text = "MOSCA A"
+placeholder_text = "Nome mosca A"
+
+[node name="NameEditB" type="LineEdit" parent="StartMenu/Panel/VBox"]
+layout_mode = 2
+text = "MOSCA B"
+placeholder_text = "Nome mosca B"
+
+[node name="BtnStartMatch" type="Button" parent="StartMenu/Panel/VBox"]
+layout_mode = 2
+text = "Inizia"

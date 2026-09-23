@@ -20,6 +20,9 @@ var cooldown_left: float = 0.0
 var last_hit_reward: float = 0.0  # read/cleared by AIController each step
 var autonomous: bool = false  # true quando nessun server RL e' connesso (demo alpha)
 var time_since_hit: float = 0.0
+var enforce_no_hit_timeout: bool = false  # solo durante il training (vedi arena.gd): reward
+# shaping anti-passivita', non e' una regola di gioco. In partita vera l'unica
+# win condition e' azzerare gli HP avversari, nessun limite di tempo.
 
 var _move_action := Vector2.ZERO
 var _throw_action := false
@@ -83,7 +86,7 @@ func _flash_hit() -> void:
 func _physics_process(delta: float) -> void:
 	cooldown_left = max(0.0, cooldown_left - delta)
 	time_since_hit += delta
-	if time_since_hit > no_hit_timeout and hp > 0.0:
+	if enforce_no_hit_timeout and time_since_hit > no_hit_timeout and hp > 0.0:
 		# passivita' punita: malus + "cade dalla mappa" (sconfitta immediata)
 		last_hit_reward -= no_hit_malus
 		hp = 0.0

@@ -289,11 +289,35 @@ func _heuristic_process():
 
 
 func _extract_action_dict(action_array: Array, action_space: Dictionary, action_means_only: bool):
+	# Quando lo spazio azioni e' misto (continuo + discreto), il training
+	# SB3 lato Python (ActionSpaceProcessor.convert_action_space=True,
+	# godot_rl/core/utils.py) collassa ogni azione discreta binaria (size<=2)
+	# in UN solo valore continuo con soglia >0.0, non in "size" logit
+	# separati: "only binary actions are supported if you mix different
+	# spaces" (commento originale nella libreria). Il modello onnx esportato
+	# da un training del genere segue la stessa codifica, quindi qui va
+	# rispecchiata la stessa soglia, altrimenti gli indici nell'array di
+	# output vanno fuori range non appena c'e' anche un'azione continua.
+	var is_mixed_space := false
+	var has_continuous := false
+	var has_discrete := false
+	for k in action_space.keys():
+		if action_space[k]["action_type"] == "continuous":
+			has_continuous = true
+		else:
+			has_discrete = true
+	is_mixed_space = has_continuous and has_discrete
+
 	var index = 0
 	var result = {}
 	for key in action_space.keys():
 		var size = action_space[key]["size"]
 		var action_type = action_space[key]["action_type"]
+
+		if action_type == "discrete" and is_mixed_space and size <= 2:
+			result[key] = 1 if action_array[index] > 0.0 else 0
+			index += 1
+			continue
 
 		if action_type == "discrete":
 			var largest_logit: float = -INF  # Value of the largest logit for this action in the actions array

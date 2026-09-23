@@ -37,15 +37,34 @@ func _notification(what):
 
 # Check whether agent uses a continuous actions model with only action means or not
 func set_action_means_only(agent_action_space):
+	# Bug nella versione originale: richiedeva uno spazio azioni puramente
+	# continuo per considerare "means only" (export sb3/cleanrl), quindi con
+	# un'azione discreta mista (es. "throw") non veniva mai impostato e
+	# sync.gd si aspettava mean+logstd, sfasando gli indici e sballando
+	# _extract_action_dict (accesso fuori indice sull'array di output).
+	# Fix: confronta la dimensione totale attesa in modalita' "means only"
+	# con la reale dimensione di output del modello onnx, indipendentemente
+	# dal mix di tipi. Stessa regola di collasso binario usata in
+	# sync.gd::_extract_action_dict: uno spazio misto (continuo+discreto)
+	# collassa ogni azione discreta binaria (size<=2) in 1 solo valore invece
+	# di "size" logit (vedi commento li' per il motivo).
 	action_means_only_set = true
-	var continuous_only: bool = true
-	var continuous_actions: int
+	var has_continuous := false
+	var has_discrete := false
 	for action in agent_action_space:
-		if not agent_action_space[action]["action_type"] == "continuous":
-			continuous_only = false
-			break
+		if agent_action_space[action]["action_type"] == "continuous":
+			has_continuous = true
 		else:
-			continuous_actions += agent_action_space[action]["size"]
-	if continuous_only:
-		if continuous_actions == action_output_size:
-			action_means_only = true
+			has_discrete = true
+	var is_mixed_space: bool = has_continuous and has_discrete
+
+	var total_size: int = 0
+	for action in agent_action_space:
+		var action_type = agent_action_space[action]["action_type"]
+		var size = agent_action_space[action]["size"]
+		if action_type == "discrete" and is_mixed_space and size <= 2:
+			total_size += 1
+		else:
+			total_size += size
+	if total_size == action_output_size:
+		action_means_only = true
